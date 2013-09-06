@@ -23,5 +23,12 @@ public class ServerActivity extends Activity
 		getMenuInflater().inflate(R.menu.server, menu);
 		return true;
 	}
+	
+	@Override
+	public void onDestroy()
+	{
+		server.cancel();
+		super.onDestroy();
+	}
 
 }

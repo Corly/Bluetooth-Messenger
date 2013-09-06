@@ -1,8 +1,10 @@
 package com.example.bluetoothchat;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
-
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
@@ -15,6 +17,7 @@ public class ServerComponent extends Thread
 	private BluetoothServerSocket serverSocket;
 	private BluetoothAdapter bltAdapter;
 	private Context context;
+	private boolean isRunning;
 
 	public ServerComponent(Context context)
 	{
@@ -22,7 +25,6 @@ public class ServerComponent extends Thread
 		BluetoothServerSocket tmp = null;
 		bltAdapter = BluetoothAdapter.getDefaultAdapter();
 		serverSocket = null;
-		
 
 		if (bltAdapter == null)
 			return;
@@ -32,20 +34,18 @@ public class ServerComponent extends Thread
 			Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			context.startActivity(enableBluetooth);
 		}
-		
+
 		if (bltAdapter.isEnabled())
 		{
 			Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 			discoverable.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 			context.startActivity(discoverable);
 		}
-		
 
 		try
 		{
 			tmp = bltAdapter.listenUsingRfcommWithServiceRecord("BLT", UUID.fromString("65497178-f0ac-4c37-b619-eecd39ab947c"));
-			Log.d("BLT","WOHOOO");
-			
+
 		} catch (IOException er)
 		{
 
@@ -57,27 +57,30 @@ public class ServerComponent extends Thread
 	public void run()
 	{
 		BluetoothSocket socket = null;
-		while (true)
+		InputStream input;
+		OutputStream output;
+		Log.d("BLT" , "Listening for connection...");
+		try
 		{
-			try
+			socket = serverSocket.accept();
+			Log.d("BLT","Someone connected");
+			if (socket == null) return;
+			input = socket.getInputStream();
+			output = socket.getOutputStream();
+			Log.d("BLT","Streams initialized");
+			byte[] data = new byte[10];
+			while (socket != null)
 			{
-				socket = serverSocket.accept();
-			} catch (IOException er)
-			{
-				break;
-			}
-			if (socket != null)
-			{
-				try
-				{
-					serverSocket.close();
-				} catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				break;
+				Log.d("BLT","reading...");
+				int bytes = input.read(data);
+				Log.d("BLT",new String(data));
 			}
 		}
+		catch (Exception er)
+		{
+			Log.d("BLT",er.getMessage() + " " + er.getLocalizedMessage());
+		}
+		
 	}
 
 	public void cancel()
@@ -85,8 +88,10 @@ public class ServerComponent extends Thread
 		try
 		{
 			serverSocket.close();
+			
 		} catch (IOException er)
 		{
 		}
 	}
+	
 }

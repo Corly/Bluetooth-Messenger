@@ -30,5 +30,11 @@ public class ConnectedActivity extends Activity
 		getMenuInflater().inflate(R.menu.connected, menu);
 		return true;
 	}
+	
+	public void onDestroy()
+	{
+		
+		super.onDestroy();
+	}
 
 }

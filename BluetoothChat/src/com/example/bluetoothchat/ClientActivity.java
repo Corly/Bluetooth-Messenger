@@ -47,9 +47,9 @@ public class ClientActivity extends Activity
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long ID)
 		{
-			mngr.stopDiscovery();
 			Intent next = new Intent(ClientActivity.this, ConnectedActivity.class);
 			next.putExtra("index", position);
+			mngr.stopDiscovery();
 			context.startActivity(next);
 
 		}
@@ -59,6 +59,14 @@ public class ClientActivity extends Activity
 	public static BluetoothDevice getDevice(int index)
 	{
 		return mngr.getDevice(index);
+	}
+	
+	public void onDestroy()
+	{
+		mngr.stopDiscovery();
+		mngr.destroy();
+		mngr = null;
+		super.onDestroy();
 	}
 
 }

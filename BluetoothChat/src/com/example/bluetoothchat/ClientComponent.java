@@ -1,6 +1,8 @@
 package com.example.bluetoothchat;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothDevice;
@@ -10,6 +12,8 @@ public class ClientComponent extends Thread
 {
 	private BluetoothSocket socket;
 	private BluetoothDevice device;
+	private InputStream input = null;
+	private OutputStream output = null;
 	
 	public ClientComponent(BluetoothDevice device)
 	{
@@ -28,7 +32,10 @@ public class ClientComponent extends Thread
 	{
 		try
 		{
-			socket.connect();
+			socket.connect();			
+			input = socket.getInputStream();
+			output = socket.getOutputStream();
+			output.write("Hello".getBytes());
 		}
 		catch (IOException connectEr)
 		{
@@ -40,6 +47,17 @@ public class ClientComponent extends Thread
 			{
 				return;
 			}
+		}
+	}
+	
+	public void write(byte[] bytes)
+	{
+		try
+		{
+			output.write(bytes);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
 		}
 	}
 	
