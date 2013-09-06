@@ -31,11 +31,13 @@ public class ServerComponent extends Thread
 
 		if (!bltAdapter.isEnabled())
 		{
+			Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			discoverable.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+			context.startActivity(discoverable);
 			Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			context.startActivity(enableBluetooth);
 		}
-
-		if (bltAdapter.isEnabled())
+		else
 		{
 			Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 			discoverable.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);

@@ -1,6 +1,7 @@
 package com.example.bluetoothchat;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,12 +12,20 @@ public class FrontActivity extends Activity
 {
 	private BluetoothManager bltManager;
 	private Context context;
+	private BluetoothAdapter bltAdapter;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_front);
 		context = this;
+		bltAdapter = BluetoothAdapter.getDefaultAdapter();
+		if (!bltAdapter.isEnabled())
+		{
+			// check if the bluetooth is enabled
+			Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			context.startActivity(enableBluetooth);
+		}
 	}
 
 	@Override
