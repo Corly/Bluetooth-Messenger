@@ -10,7 +10,7 @@ public class ConnectedActivity extends Activity
 {
 	private int deviceIndex;
 	private BluetoothDevice deviceToConnect;
-	private ClientComponent client;
+	private AsyncClientComponent client;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -20,8 +20,8 @@ public class ConnectedActivity extends Activity
 		deviceIndex = extras.getInt("index");
 		Log.d("BLT",deviceIndex + " ");
 		deviceToConnect = ClientActivity.getDevice(deviceIndex);
-		client = new ClientComponent(deviceToConnect);
-		client.start();
+		client = new AsyncClientComponent(deviceToConnect);
+		client.execute();
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class ConnectedActivity extends Activity
 	
 	public void onDestroy()
 	{
-		
+		client.cancel(true);
 		super.onDestroy();
 	}
 

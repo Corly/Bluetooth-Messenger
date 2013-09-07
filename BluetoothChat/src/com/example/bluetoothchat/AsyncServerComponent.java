@@ -4,24 +4,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
-import android.annotation.SuppressLint;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.util.Log;
 
-public class ServerComponent extends Thread
+public class AsyncServerComponent extends AsyncTask<Void,String,Void>
 {
 	private BluetoothServerSocket serverSocket;
+	private BluetoothSocket dataSocket = null;
 	private BluetoothAdapter bltAdapter;
 	private Context context;
-	private boolean isRunning;
-
-	public ServerComponent(Context context)
+	private UILink updater;
+	public AsyncServerComponent(Context cnt , UILink UIUpdater)
 	{
-		this.context = context;
+		this.context = cnt;
+		updater = UIUpdater;
 		BluetoothServerSocket tmp = null;
 		bltAdapter = BluetoothAdapter.getDefaultAdapter();
 		serverSocket = null;
@@ -55,45 +57,43 @@ public class ServerComponent extends Thread
 
 		serverSocket = tmp;
 	}
-
-	public void run()
+	@Override
+	protected Void doInBackground(Void... arg0)
 	{
-		BluetoothSocket socket = null;
 		InputStream input;
-		OutputStream output;
 		Log.d("BLT" , "Listening for connection...");
 		try
 		{
-			socket = serverSocket.accept();
+			dataSocket = serverSocket.accept();
 			Log.d("BLT","Someone connected");
-			if (socket == null) return;
-			input = socket.getInputStream();
-			output = socket.getOutputStream();
+			if (dataSocket == null) return null;
+			input = dataSocket.getInputStream();
 			Log.d("BLT","Streams initialized");
-			byte[] data = new byte[10];
-			while (socket != null)
+			byte[] data = new byte[100];
+			while (dataSocket != null)
 			{
-				Log.d("BLT","reading...");
 				int bytes = input.read(data);
-				Log.d("BLT",new String(data));
+				Log.d("BLT" , new String(data));
+				this.publishProgress(new String(data));
 			}
 		}
 		catch (Exception er)
 		{
 			Log.d("BLT",er.getMessage() + " " + er.getLocalizedMessage());
 		}
-		
-	}
-
-	public void cancel()
-	{
-		try
-		{
-			serverSocket.close();
-			
-		} catch (IOException er)
-		{
-		}
+		return null;
 	}
 	
+	protected void onProgressUpdate(String... strings)
+	{
+		if (updater != null) updater.useData(strings);
+	}
+	
+	public void write(String data) throws Exception
+	{
+		OutputStream output = dataSocket.getOutputStream();
+		output.write(data.getBytes());
+		output.flush();
+		
+	}
 }
