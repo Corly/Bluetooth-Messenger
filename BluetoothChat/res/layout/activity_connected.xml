@@ -8,4 +8,40 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ConnectedActivity" >
 
+    <EditText
+        android:id="@+id/clientEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/clientInput"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:editable="false"
+        android:ems="10"
+        android:enabled="false"
+        android:gravity="top"
+        android:inputType="textMultiLine" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/clientSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/clientInput"
+        android:layout_alignBottom="@+id/clientInput"
+        android:layout_alignRight="@+id/clientEditText"
+        android:text="Send"
+        android:onClick = "SendClick" />
+
+    <EditText
+        android:id="@+id/clientInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/clientEditText"
+        android:layout_alignParentBottom="true"
+        android:ems="10"
+        android:hint="Enter text here..." />
+
 </RelativeLayout>

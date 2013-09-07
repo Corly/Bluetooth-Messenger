@@ -9,16 +9,17 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
 
-public class AsyncClientComponent extends AsyncTask<Void,Void,Void>
+public class AsyncClientComponent extends AsyncTask<Void,String,Void>
 {
 	private BluetoothSocket dataSocket;
 	private BluetoothDevice device;
 	private InputStream input = null;
 	private OutputStream output = null;
-	
-	public AsyncClientComponent(BluetoothDevice device)
+	private UILink updater;
+	public AsyncClientComponent(BluetoothDevice device , UILink UIUpdater)
 	{
 		BluetoothSocket tmp = null;
+		updater = UIUpdater;
 		this.device = device;
 		try
 		{
@@ -36,12 +37,12 @@ public class AsyncClientComponent extends AsyncTask<Void,Void,Void>
 			dataSocket.connect();			
 			input = dataSocket.getInputStream();
 			output = dataSocket.getOutputStream();
+			byte[] data = new byte[100];
 			while (true)
 			{
-				String ping_message = "(Ping) " + device.getName() + ".";
-				output.write(ping_message.getBytes());
-				output.flush();
-				Thread.sleep(1000);
+				int bytes = input.read(data);
+				this.publishProgress(new String(data));
+				Thread.sleep(20);
 			}
 		}
 		catch (Exception connectEr)
@@ -58,11 +59,28 @@ public class AsyncClientComponent extends AsyncTask<Void,Void,Void>
 		return null;
 	}
 	
+	protected void onProgressUpdate(String... strings)
+	{
+		if (updater != null) updater.useData(strings);
+	}
+	
+	public void closeSockets()
+	{
+		try
+		{
+			dataSocket.close();
+			dataSocket = null;
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public void write(String data) throws Exception
 	{
-		OutputStream output = dataSocket.getOutputStream();
 		output.write(data.getBytes());
-		output.flush();
-		
+		output.flush();		
 	}
 }

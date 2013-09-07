@@ -26,6 +26,8 @@ public class FrontActivity extends Activity
 			Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			context.startActivity(enableBluetooth);
 		}
+		MyDeviceData.adress = bltAdapter.getAddress();
+		MyDeviceData.name = bltAdapter.getName();
 	}
 
 	@Override

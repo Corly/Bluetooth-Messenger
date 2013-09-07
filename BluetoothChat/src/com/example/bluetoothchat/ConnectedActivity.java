@@ -3,24 +3,37 @@ package com.example.bluetoothchat;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.EditText;
 
 public class ConnectedActivity extends Activity
 {
 	private int deviceIndex;
 	private BluetoothDevice deviceToConnect;
 	private AsyncClientComponent client;
+	private EditText chatText;
+	private EditText inputText;
+	
+	private UILink updater = new UILink()
+	{
+		@Override
+		public void useData(String... args)
+		{
+			chatText.append(args[0]+"\n");			
+		}		
+	};
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_connected);
+		chatText = (EditText)findViewById(R.id.clientEditText);
+		inputText = (EditText)findViewById(R.id.clientInput);
 		Bundle extras = this.getIntent().getExtras();
 		deviceIndex = extras.getInt("index");
-		Log.d("BLT",deviceIndex + " ");
 		deviceToConnect = ClientActivity.getDevice(deviceIndex);
-		client = new AsyncClientComponent(deviceToConnect);
+		client = new AsyncClientComponent(deviceToConnect,updater);
 		client.execute();
 	}
 
@@ -34,7 +47,21 @@ public class ConnectedActivity extends Activity
 	public void onDestroy()
 	{
 		client.cancel(true);
+		client.closeSockets();
 		super.onDestroy();
 	}
-
+	
+	public void SendClick(View view)
+	{
+		try
+		{
+			String text = inputText.getText().toString();
+			chatText.append(MyDeviceData.name + ": " + text+"\n");
+			client.write(MyDeviceData.name + ": " + text+"\n");
+			inputText.setText("");
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

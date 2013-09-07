@@ -9,25 +9,39 @@
     tools:context=".ServerActivity" >
 
     <EditText
-        android:id="@+id/editText1"
+        android:id="@+id/serverEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/serverSend"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="64dp"
+        android:editable="false"
         android:ems="10"
-        android:inputType="textMultiLine" />
+        android:enabled="false"
+        android:gravity="top"
+        android:inputType="textMultiLine" >
 
-    <TextView
-        android:id="@+id/textView1"
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/serverInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText1"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="19dp"
-        android:text="Who is connected"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_alignLeft="@+id/clientEditText"
+        android:layout_alignParentBottom="true"
+        android:ems="10"
+        android:hint="Enter text here..." />
+
+    <Button
+        android:id="@+id/serverSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/serverInput"
+        android:layout_alignBottom="@+id/serverInput"
+        android:layout_alignRight="@+id/serverEditText"
+        android:text="Send"
+        android:onClick="SendClick" />
 
 </RelativeLayout>
