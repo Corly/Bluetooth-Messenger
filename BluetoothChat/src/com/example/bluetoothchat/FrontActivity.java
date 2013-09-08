@@ -13,6 +13,7 @@ public class FrontActivity extends Activity
 	private BluetoothManager bltManager;
 	private Context context;
 	private BluetoothAdapter bltAdapter;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -36,13 +37,13 @@ public class FrontActivity extends Activity
 		getMenuInflater().inflate(R.menu.front, menu);
 		return true;
 	}
-	
+
 	public void clientClick(View v)
 	{
 		Intent clt = new Intent(FrontActivity.this, ClientActivity.class);
 		startActivity(clt);
 	}
-	
+
 	public void serverClick(View v)
 	{
 		Intent srv = new Intent(FrontActivity.this, ServerActivity.class);

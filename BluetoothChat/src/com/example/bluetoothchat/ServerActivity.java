@@ -12,54 +12,52 @@ public class ServerActivity extends Activity
 	private AsyncServerComponent server;
 	private EditText chatText;
 	private EditText inputText;
-	
+
 	private UILink asdf = new UILink()
 	{
 		@Override
 		public void useData(String... args)
 		{
-			Log.d("BLT","de aci " + args[0]);
-			chatText.append(args[0]+"\n");
-		}		
+			Log.d("BLT", "de aci " + args[0]);
+			chatText.append(args[0] + "\n");
+		}
 	};
-	
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_server);
-		chatText = (EditText)findViewById(R.id.serverEditText);
-		inputText = (EditText)findViewById(R.id.serverInput);
-		server = new AsyncServerComponent(this , asdf);
+		chatText = (EditText) findViewById(R.id.serverEditText);
+		inputText = (EditText) findViewById(R.id.serverInput);
+		server = new AsyncServerComponent(this, asdf);
 		server.execute();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.server, menu);
 		return true;
 	}
-	
+
 	@Override
 	public void onDestroy()
 	{
-		server.cancel(true);
 		server.closeSockets();
 		super.onDestroy();
 	}
-	
+
 	public void SendClick(View view)
 	{
 		try
 		{
 			String text = inputText.getText().toString();
-			chatText.append(MyDeviceData.name + ": " + text+"\n");
-			server.write(MyDeviceData.name + ": " + text+"\n");
+			chatText.append(MyDeviceData.name + ": " + text + "\n");
+			server.write(MyDeviceData.name + ": " + text + "\n");
 			inputText.setText("");
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}

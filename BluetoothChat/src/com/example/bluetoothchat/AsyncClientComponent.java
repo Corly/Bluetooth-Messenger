@@ -8,79 +8,80 @@ import java.util.UUID;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
+import android.util.Log;
 
-public class AsyncClientComponent extends AsyncTask<Void,String,Void>
+public class AsyncClientComponent extends AsyncTask<Void, String, Void>
 {
-	private BluetoothSocket dataSocket;
-	private BluetoothDevice device;
-	private InputStream input = null;
-	private OutputStream output = null;
-	private UILink updater;
-	public AsyncClientComponent(BluetoothDevice device , UILink UIUpdater)
+	private BluetoothSocket mDataSocket;
+	private final BluetoothDevice mDevice;
+	private final UILink mUpdater;
+	private ConnectionManager mManager;
+
+	public AsyncClientComponent(BluetoothDevice device, UILink UIUpdater)
 	{
 		BluetoothSocket tmp = null;
-		updater = UIUpdater;
-		this.device = device;
+		mUpdater = UIUpdater;
+		mDevice = device;
 		try
 		{
 			tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("65497178-f0ac-4c37-b619-eecd39ab947c"));
 		}
-		catch(IOException er)
-		{}
-		dataSocket = tmp;
+		catch (IOException er)
+		{
+		}
+		mDataSocket = tmp;
 	}
-	
+
 	protected Void doInBackground(Void... params)
 	{
 		try
 		{
-			dataSocket.connect();			
-			input = dataSocket.getInputStream();
-			output = dataSocket.getOutputStream();
-			byte[] data = new byte[100];
-			while (true)
-			{
-				int bytes = input.read(data);
-				this.publishProgress(new String(data));
-				Thread.sleep(20);
-			}
+			mDataSocket.connect();
 		}
 		catch (Exception connectEr)
 		{
 			try
 			{
-				dataSocket.close();
+				Log.d("BLT", connectEr.getMessage());
+				this.publishProgress("Connection to " + mDataSocket.getRemoteDevice().getName() + " has failed!");
+				mDataSocket.close();
+				return null;
 			}
-			catch(IOException closeEr)
+			catch (IOException closeEr)
 			{
+				Log.d("BLT", closeEr.getMessage());
+				this.publishProgress("Connection to " + mDataSocket.getRemoteDevice().getName() + " has failed!");
 				return null;
 			}
 		}
+		mManager = new ConnectionManager(mDataSocket, mUpdater);
+		//mManager.execute();
+		this.publishProgress("Connection established to " + mDataSocket.getRemoteDevice().getName());
+		
 		return null;
 	}
-	
-	protected void onProgressUpdate(String... strings)
+
+	public void onProgressUpdate(String... strings)
 	{
-		if (updater != null) updater.useData(strings);
+		if (mUpdater != null)
+			mUpdater.useData(strings);
 	}
-	
+
 	public void closeSockets()
 	{
 		try
 		{
-			dataSocket.close();
-			dataSocket = null;
-		} catch (IOException e)
+			mDataSocket.close();
+			mManager.stop();
+		}
+		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	
-	public void write(String data) throws Exception
+	public void write(String data)
 	{
-		output.write(data.getBytes());
-		output.flush();		
+		mManager.write(data);
 	}
 }

@@ -55,12 +55,12 @@ public class ClientActivity extends Activity
 		}
 
 	};
-	
+
 	public static BluetoothDevice getDevice(int index)
 	{
 		return mngr.getDevice(index);
 	}
-	
+
 	public void onDestroy()
 	{
 		mngr.stopDiscovery();

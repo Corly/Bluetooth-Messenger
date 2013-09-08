@@ -1,8 +1,6 @@
 package com.example.bluetoothchat;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -15,103 +13,97 @@ import android.util.Log;
 
 public class AsyncServerComponent extends AsyncTask<Void, String, Void>
 {
-	private BluetoothServerSocket serverSocket;
-	private BluetoothSocket dataSocket = null;
-	private BluetoothAdapter bltAdapter;
-	private Context context;
-	private UILink updater;
+	private BluetoothServerSocket mServerSocket;
+	private final BluetoothAdapter mBltAdapter;
+	private final Context mContext;
+	private final UILink mUpdater;
+	private ConnectionManager mManager;
 
-	public AsyncServerComponent(Context cnt, UILink UIUpdater)
+	public AsyncServerComponent(Context context, UILink UIUpdater)
 	{
-		this.context = cnt;
-		updater = UIUpdater;
+		mContext = context;
+		mUpdater = UIUpdater;
 		BluetoothServerSocket tmp = null;
-		bltAdapter = BluetoothAdapter.getDefaultAdapter();
-		serverSocket = null;
+		mBltAdapter = BluetoothAdapter.getDefaultAdapter();
 
-		if (bltAdapter == null)
+		if (mBltAdapter == null)
 			return;
 
-		if (!bltAdapter.isEnabled())
+		if (mBltAdapter.isEnabled())
 		{
 			Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 			discoverable.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-			context.startActivity(discoverable);
-			Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			context.startActivity(enableBluetooth);
-		} else
-		{
-			Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-			discoverable.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-			context.startActivity(discoverable);
+			mContext.startActivity(discoverable);
 		}
-
 		try
 		{
-			tmp = bltAdapter.listenUsingRfcommWithServiceRecord("BLT", UUID.fromString("65497178-f0ac-4c37-b619-eecd39ab947c"));
+			tmp = mBltAdapter.listenUsingRfcommWithServiceRecord("BLT", UUID.fromString("65497178-f0ac-4c37-b619-eecd39ab947c"));
 
-		} catch (IOException er)
+		}
+		catch (IOException er)
 		{
 
 		}
 
-		serverSocket = tmp;
+		mServerSocket = tmp;
 	}
 
 	@Override
 	protected Void doInBackground(Void... arg0)
 	{
-		InputStream input;
-		Log.d("BLT", "Listening for connection...");
-		try
+		BluetoothSocket socket = null;
+		while (true)
 		{
-			dataSocket = serverSocket.accept();
-			serverSocket.close();
-			Log.d("BLT", "Someone connected");
-			if (dataSocket == null)
-				return null;
-			input = dataSocket.getInputStream();
-			Log.d("BLT", "Streams initialized");
-			byte[] data = new byte[100];
-			while (true)
+			try
 			{
-				int bytes = input.read(data);
-				Log.d("BLT", new String(data));
-				this.publishProgress(new String(data));
-				Thread.sleep(20);
+				socket = mServerSocket.accept();
 			}
-		} catch (Exception er)
-		{
-			Log.d("BLT", er.getMessage() + " " + er.getLocalizedMessage());
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				break;
+			}
+			if (socket != null)
+			{
+				try
+				{
+					mManager = new ConnectionManager(socket , mUpdater);
+					//mManager.execute();
+					mServerSocket.close();
+					break;
+				}
+				catch (IOException e)
+				{
+					break;
+				}
+			}
 		}
+		this.publishProgress(socket.getRemoteDevice().getName() + " has connected!");
+
 		return null;
 	}
 
 	protected void onProgressUpdate(String... strings)
 	{
-		Log.d("BLT", "update in UI");
-		if (updater != null)
-			updater.useData(strings);
+		if (mUpdater != null)
+			mUpdater.useData(strings);
 	}
 
 	protected void closeSockets()
 	{
 		try
 		{
-			dataSocket.close();
-			serverSocket.close();
-			dataSocket = null;
-			serverSocket = null;
-		} catch (Exception er)
+			mManager.stop();
+			mServerSocket.close();
+		}
+		catch (Exception er)
 		{
 
 		}
 	}
-
-	public void write(String data) throws Exception
+	
+	public void write(String data)
 	{
-		OutputStream output = dataSocket.getOutputStream();
-		output.write(data.getBytes());
-		output.flush();
+		mManager.write(data);
 	}
 }
