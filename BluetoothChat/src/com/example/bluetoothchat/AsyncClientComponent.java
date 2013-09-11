@@ -24,7 +24,7 @@ public class AsyncClientComponent extends AsyncTask<Void, String, Void>
 		mDevice = device;
 		try
 		{
-			tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("65497178-f0ac-4c37-b619-eecd39ab947c"));
+			tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 		}
 		catch (IOException er)
 		{
@@ -55,7 +55,7 @@ public class AsyncClientComponent extends AsyncTask<Void, String, Void>
 			}
 		}
 		mManager = new ConnectionManager(mDataSocket, mUpdater);
-		//mManager.execute();
+		mManager.execute();
 		this.publishProgress("Connection established to " + mDataSocket.getRemoteDevice().getName());
 		
 		return null;
@@ -71,10 +71,9 @@ public class AsyncClientComponent extends AsyncTask<Void, String, Void>
 	{
 		try
 		{
-			mDataSocket.close();
 			mManager.stop();
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}

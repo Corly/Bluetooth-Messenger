@@ -1,8 +1,10 @@
 package com.example.bluetoothchat;
 
-import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Scanner;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
@@ -36,13 +38,13 @@ public class ConnectionManager extends AsyncTask<Void, String, Void>
 
 	public Void doInBackground(Void... params)
 	{
-		byte[] buffer = new byte[1024];
-		int bytes = 0;
 		while (true)
 		{
 			try
 			{
-				bytes = mInput.read(buffer);
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(mInput, "UTF-8"));
+				this.publishProgress(bufferedReader.readLine());
+				Thread.sleep(20);
 			}
 			catch (Exception er)
 			{
@@ -76,9 +78,11 @@ public class ConnectionManager extends AsyncTask<Void, String, Void>
 	{
 		try
 		{
+			mInput.close();
+			mOutput.close();
 			mSocket.close();
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 		}
 	}

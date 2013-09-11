@@ -45,6 +45,7 @@ public class ServerActivity extends Activity
 	public void onDestroy()
 	{
 		server.closeSockets();
+		server.cancel(true);
 		super.onDestroy();
 	}
 

@@ -37,7 +37,7 @@ public class AsyncServerComponent extends AsyncTask<Void, String, Void>
 		}
 		try
 		{
-			tmp = mBltAdapter.listenUsingRfcommWithServiceRecord("BLT", UUID.fromString("65497178-f0ac-4c37-b619-eecd39ab947c"));
+			tmp = mBltAdapter.listenUsingRfcommWithServiceRecord("BLT", UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 
 		}
 		catch (IOException er)
@@ -67,15 +67,23 @@ public class AsyncServerComponent extends AsyncTask<Void, String, Void>
 			{
 				try
 				{
-					mManager = new ConnectionManager(socket , mUpdater);
-					//mManager.execute();
 					mServerSocket.close();
+					mManager = new ConnectionManager(socket , mUpdater);
+					mManager.execute();
 					break;
 				}
 				catch (IOException e)
 				{
 					break;
 				}
+			}
+			try
+			{
+				Thread.sleep(20);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
 			}
 		}
 		this.publishProgress(socket.getRemoteDevice().getName() + " has connected!");

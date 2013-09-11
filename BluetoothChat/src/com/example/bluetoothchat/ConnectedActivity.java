@@ -48,6 +48,7 @@ public class ConnectedActivity extends Activity
 	public void onDestroy()
 	{
 		client.closeSockets();
+		client.cancel(true);
 		super.onDestroy();
 	}
 
